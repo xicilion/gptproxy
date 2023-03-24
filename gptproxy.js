@@ -48,7 +48,6 @@ const svr = new ssl.Server(
                         return true;
                     });
 
-                    req.removeHeader('PRIVATE-TOKEN');
                     req.setHeader('Authorization', `Bearer ${OPENAI_API_KEY}`);
                 }
 
