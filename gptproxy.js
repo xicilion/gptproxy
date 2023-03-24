@@ -47,6 +47,9 @@ const svr = new ssl.Server(
 
                         return true;
                     });
+
+                    req.removeHeader('PRIVATE-TOKEN');
+                    req.setHeader('Authorization', `Bearer ${OPENAI_API_KEY}`);
                 }
 
                 if (!upconn) {
@@ -58,10 +61,7 @@ const svr = new ssl.Server(
                     });
                 }
 
-                req.removeHeader('PRIVATE-TOKEN');
                 req.setHeader('Host', OPENAI_API_ENTRY);
-                req.setHeader('Authorization', `Bearer ${OPENAI_API_KEY}`);
-
                 req.sendTo(upconn);
             }
         } finally {
