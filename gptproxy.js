@@ -47,22 +47,22 @@ const svr = new ssl.Server(
 
                         return true;
                     });
-
-                    if (!upconn) {
-                        upconn = ssl.connect(`ssl://${OPENAI_API_ENTRY}:443`);
-                        upconn.stream.timeout = timeout;
-                        upconn.copyTo(conn, (err, bytes) => {
-                            conn.close(() => { });
-                            upconn.close(() => { });
-                        });
-                    }
-
-                    req.removeHeader('PRIVATE-TOKEN');
-                    req.setHeader('Host', OPENAI_API_ENTRY);
-                    req.setHeader('Authorization', `Bearer ${OPENAI_API_KEY}`);
-
-                    req.sendTo(upconn);
                 }
+
+                if (!upconn) {
+                    upconn = ssl.connect(`ssl://${OPENAI_API_ENTRY}:443`);
+                    upconn.stream.timeout = timeout;
+                    upconn.copyTo(conn, (err, bytes) => {
+                        conn.close(() => { });
+                        upconn.close(() => { });
+                    });
+                }
+
+                req.removeHeader('PRIVATE-TOKEN');
+                req.setHeader('Host', OPENAI_API_ENTRY);
+                req.setHeader('Authorization', `Bearer ${OPENAI_API_KEY}`);
+
+                req.sendTo(upconn);
             }
         } finally {
             conn.close(() => { });
