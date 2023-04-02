@@ -32,7 +32,8 @@ function get_embedding(text) {
 }
 
 const dbconn = db.open('sqlite:docs.db');
-const prompt = `You are a fibjs development assistant, please answer the questions and explain in detail strictly based on the following information, and be sure not to refer to the nodejs documentation and source code`;
+const prompt = `You are a fibjs development assistant, please answer the questions and explain in detail strictly based on the following information,
+If the following information does not relate to the query, simply state 'Found Nothing'. Ignore outlier search results which has nothing to do with the question.`;
 const modules = `fibjs has the following modules built in: ${util.buildInfo().modules.join(',')}`;
 
 const svr = new ssl.Server(
