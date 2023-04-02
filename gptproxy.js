@@ -124,11 +124,6 @@ const svr = new ssl.Server(
                             });
                         });
 
-                        messages.push({
-                            role: 'user',
-                            content: r.messages[sz - 1].content
-                        });
-
                         r.messages = messages.concat(r.messages);
 
                         req.json(r);
