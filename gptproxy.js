@@ -34,9 +34,7 @@ function get_embedding(text) {
 const dbconn = db.open('sqlite:docs.db');
 const prompt = `You are a fibjs development assistant, please answer the questions and explain in detail strictly based on the above information.
 Ignore outlier search results which has nothing to do with the question.
-Avoid any references to current or past political figures or events, as well as historical figures or events that may be controversial or divisive.
-For questions that are not related to programming, ChatGPT should reject them and inform the user that "Your question is not related to programming. Please provide a programming-related question."`;
-const modules = `fibjs has the following modules built in: ${util.buildInfo().modules.join(',')}`;
+For questions that are not related to fibjs, ChatGPT should reject them and inform the user that "Your question is not related to fibjs. Please provide a fibjs-related question."`;
 
 const svr = new ssl.Server(
     crypto.loadCert(path.join(__dirname, 'cert.pem')), crypto.loadPKey(path.join(__dirname, 'key.pem')),
@@ -112,12 +110,7 @@ const svr = new ssl.Server(
 
                         contents = contents.slice(0, i);
 
-                        var messages = [
-                            {
-                                role: 'system',
-                                content: modules
-                            }
-                        ];
+                        var messages = [];
 
                         contents.forEach((content) => {
                             // console.notice(`id: ${content.id} distance: ${content.distance}`);
