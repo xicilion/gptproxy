@@ -88,9 +88,15 @@ const svr = new ssl.Server(
                 if (req.address === '/v1/chat/completions') {
                     var r = req.json();
                     var sz = r.messages.length;
+                    var is_fibjs = false;
 
-                    if (r.messages[sz - 1].content.toLowerCase().indexOf('fibjs') >= 0
-                        || r.messages[0].content.toLowerCase().indexOf('fibjs') >= 0) {
+                    for (var i = 0; i < sz; i++)
+                        if (r.messages[i].content.toLowerCase().indexOf('fibjs') >= 0) {
+                            is_fibjs = true;
+                            break;
+                        }
+
+                    if (is_fibjs) {
                         var ask_embedding = get_embedding(r.messages[sz - 1].content);
 
                         var contents = dbconn.execute(`SELECT docs.id, docs.text, docs.total_tokens, distance FROM doc_index, docs WHERE vec_search(doc_index.vec, "${JSON.stringify(ask_embedding.data[0].embedding)}:50") AND docs.rowid = doc_index.rowid ORDER BY distance`);
