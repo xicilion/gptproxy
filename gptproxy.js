@@ -34,15 +34,16 @@ function get_embedding(text) {
 const dbconn = db.open('sqlite:docs.db');
 const prompt = `You are a fibjs development assistant, please answer the questions and explain in detail strictly based on the above information.
 Ignore outlier search results which has nothing to do with the question.
-For questions that are not related to fibjs, ChatGPT should reject them and inform the user that "Your question is not related to fibjs. Please provide a fibjs-related question."`;
+For questions that are not related to fibjs, ChatGPT should reject them and inform the user that "Your question is not related to fibjs. Please provide a fibjs-related question."
+Avoid any references to current or past political figures or events, as well as historical figures or events that may be controversial or divisive.`;
 
 const svr = new ssl.Server(
     crypto.loadCert(path.join(__dirname, 'cert.pem')), crypto.loadPKey(path.join(__dirname, 'key.pem')),
     443, conn => {
-        if (conn.stream)
-            conn.stream.timeout = timeout;
-        else
-            conn.timeout = timeout;
+        // if (conn.stream)
+        //     conn.stream.timeout = timeout;
+        // else
+        //     conn.timeout = timeout;
 
         var upconn;
         const bs = new io.BufferedStream(conn);
@@ -76,7 +77,7 @@ const svr = new ssl.Server(
 
                 if (!upconn) {
                     upconn = ssl.connect(`ssl://${OPENAI_API_ENTRY}:443`);
-                    upconn.stream.timeout = timeout;
+                    // upconn.stream.timeout = timeout;
                     upconn.copyTo(conn, (err, bytes) => {
                         conn.close(() => { });
                         upconn.close(() => { });
@@ -102,7 +103,7 @@ const svr = new ssl.Server(
 
                         var content_tokens = 0;
                         for (var i = 0; i < contents.length; i++) {
-                            if (content_tokens < 2000)
+                            if (content_tokens < 1000)
                                 content_tokens += contents[i].total_tokens;
                             else
                                 break;
