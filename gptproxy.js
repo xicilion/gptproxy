@@ -84,7 +84,7 @@ const svr = new ssl.Server(
                     });
                 }
 
-                if (req.address === '/v1/chat/completions') {
+                if (req.method === 'POST' && req.address === '/v1/chat/completions') {
                     var r = req.json();
                     var sz = r.messages.length;
                     var is_fibjs = false;
