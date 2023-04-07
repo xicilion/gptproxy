@@ -84,6 +84,8 @@ const svr = new ssl.Server(
                     });
                 }
 
+                console.log(req.method, req.address);
+
                 if (req.method === 'POST' && req.address === '/v1/chat/completions') {
                     var r = req.json();
                     var sz = r.messages.length;
@@ -96,39 +98,51 @@ const svr = new ssl.Server(
                         }
 
                     if (is_fibjs) {
-                        var ask_embedding = get_embedding(r.messages[sz - 1].content);
+                        req.setHeader('Authorization', `Bearer ${OPENAI_API_KEY}`);
+
+                        var messages = [];
+
+                        r.messages.forEach((message) => {
+                            if (message.role !== 'system')
+                                messages.push(message);
+                        });
+                        sz = messages.length;
+                        if (sz > 5) {
+                            messages = messages.slice(sz - 5, sz);
+                            sz = 5;
+                        }
+
+                        var ask_messages = messages[sz - 1];
+                        messages = messages.slice(0, sz - 1);
+
+                        var ask_embedding = get_embedding(ask_messages.content);
 
                         var contents = dbconn.execute(`SELECT docs.id, docs.text, docs.total_tokens, distance FROM doc_index, docs WHERE vec_search(doc_index.vec, "${JSON.stringify(ask_embedding.data[0].embedding)}:50") AND docs.rowid = doc_index.rowid ORDER BY distance`);
                         console.log('top distance:', contents[0].distance);
 
                         var content_tokens = 0;
                         for (var i = 0; i < contents.length; i++) {
-                            if (content_tokens < 1000)
+                            if (content_tokens < 1000) {
+                                // console.notice(`id: ${content.id} distance: ${content.distance}`);
+                                // console.log('content:', content.text);
+
+                                messages.push({
+                                    role: 'system',
+                                    content: contents[i].text
+                                });
                                 content_tokens += contents[i].total_tokens;
+                            }
                             else
                                 break;
                         }
 
-                        contents = contents.slice(0, i);
-
-                        var messages = [];
-
-                        contents.forEach((content) => {
-                            // console.notice(`id: ${content.id} distance: ${content.distance}`);
-                            // console.log('content:', content.text);
-                            messages.push({
-                                role: 'system',
-                                content: content.text
-                            });
-                        });
-
-                        r.messages.push(r.messages[sz - 1]);
-                        r.messages[sz - 1] = {
+                        messages.push({
                             role: 'system',
                             content: prompt
-                        };
+                        });
+                        messages.push(ask_messages);
 
-                        r.messages = messages.concat(r.messages);
+                        r.messages = messages;
 
                         req.json(r);
                     }
