@@ -11,7 +11,7 @@ const OPENAI_API_ENTRY = 'api.openai.com';
 const GITLAB_API_ENTRY = 'git.corp.com';
 
 const hc = new http.Client();
-const cache = new util.LruCache(100, 60000);
+const cache = new util.LruCache(100, 24 * 60 * 1000);
 const timeout = 90000;
 
 function get_embedding(text) {
@@ -117,7 +117,7 @@ const svr = new ssl.Server(
 
                         var ask_embedding = get_embedding(ask_messages.content);
 
-                        var contents = dbconn.execute(`SELECT docs.id, docs.text, docs.total_tokens, distance FROM doc_index, docs WHERE vec_search(doc_index.vec, "${JSON.stringify(ask_embedding.data[0].embedding)}:50") AND docs.rowid = doc_index.rowid ORDER BY distance`);
+                        var contents = dbconn.execute(`SELECT fibjs_docs.id, fibjs_docs.text, fibjs_docs.total_tokens, distance FROM fibjs_index, fibjs_docs WHERE vec_search(fibjs_index.vec, "${JSON.stringify(ask_embedding.data[0].embedding)}:50") AND fibjs_docs.rowid = fibjs_index.rowid ORDER BY distance`);
                         console.log('top distance:', contents[0].distance);
 
                         var content_tokens = 0;
@@ -143,6 +143,7 @@ const svr = new ssl.Server(
                         messages.push(ask_messages);
 
                         r.messages = messages;
+                        console.log(r.messages);
 
                         req.json(r);
                     }
